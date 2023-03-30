@@ -15,30 +15,23 @@ macro_rules! quantity {
 
     // derived quantity (derived by multiplication)
     (name: $n:ident, unit: $u:ident, derive: $lhs:ident * $rhs:ident) => {
+        // quantity + unit
         $crate::impl_quantity_and_unit!($n, $u);
         
         // operators
-        impl std::ops::Mul<$rhs> for $lhs {
-            type Output = $n;
-            
-            fn mul(self, rhs: $rhs) -> Self::Output {
-                $n(self.0 * rhs.0)
-            }
-        }
+        $crate::impl_mul!($lhs * $rhs = $n);
+        $crate::impl_div!($n / $rhs = $lhs);
+        $crate::impl_div!($n / $lhs = $rhs);
     };
-
+    
     // derived quantity (derived by division)
     (name: $n:ident, unit: $u:ident, derive: $lhs:ident / $rhs:ident) => {
         $crate::impl_quantity_and_unit!($n, $u);
-
+        
         // operators
-        impl std::ops::Div<$rhs> for $lhs {
-            type Output = $n;
-
-            fn div(self, rhs: $rhs) -> Self::Output {
-                $n(self.0 / rhs.0)
-            }
-        }
+        $crate::impl_div!($lhs / $rhs = $n);
+        $crate::impl_div!($lhs / $n = $rhs);
+        $crate::impl_mul!($n * $rhs = $lhs);
     };
 }
 
@@ -55,5 +48,31 @@ macro_rules! impl_quantity_and_unit {
         // unit
         pub struct $unit_name;
         impl $crate::Unit for $unit_name {}
+    };
+}
+
+#[macro_export]
+macro_rules! impl_mul {
+    ($lhs:ident * $rhs:ident = $out:ident) => {
+        impl std::ops::Mul<$rhs> for $lhs {
+            type Output = $out;
+            
+            fn mul(self, rhs: $rhs) -> Self::Output {
+                $out(self.0 * rhs.0)
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! impl_div {
+    ($lhs:ident / $rhs:ident = $out:ident) => {
+        impl std::ops::Div<$rhs> for $lhs {
+            type Output = $out;
+
+            fn div(self, rhs: $rhs) -> Self::Output {
+                $out(self.0 / rhs.0)
+            }
+        }
     };
 }
