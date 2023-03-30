@@ -3,12 +3,5 @@
 version = 3
 
 [[package]]
-name = "macros"
-version = "0.1.0"
-
-[[package]]
 name = "measurement"
 version = "0.1.0"
-dependencies = [
- "macros",
-]
