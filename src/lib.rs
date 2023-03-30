@@ -9,29 +9,31 @@ pub trait Unit {}
 #[macro_export]
 macro_rules! quantity {
     // rule for a base quantity
-    (name: $n:ident, unit: $u:ident) => {
-        $crate::impl_quantity_and_unit!($n, $u);
+    (name: $qty:ident, unit: $u:ident) => {
+        // quantity + unit
+        $crate::impl_quantity_and_unit!($qty, $u);
     };
 
     // derived quantity (derived by multiplication)
-    (name: $n:ident, unit: $u:ident, derive: $lhs:ident * $rhs:ident) => {
+    (name: $qty:ident, unit: $u:ident, derive: $lhs:ident * $rhs:ident) => {
         // quantity + unit
-        $crate::impl_quantity_and_unit!($n, $u);
+        $crate::impl_quantity_and_unit!($qty, $u);
         
         // operators
-        $crate::impl_mul!($lhs * $rhs = $n);
-        $crate::impl_div!($n / $rhs = $lhs);
-        $crate::impl_div!($n / $lhs = $rhs);
+        $crate::impl_mul!($lhs * $rhs = $qty);
+        $crate::impl_div!($qty / $rhs = $lhs);
+        $crate::impl_div!($qty / $lhs = $rhs);
     };
     
     // derived quantity (derived by division)
-    (name: $n:ident, unit: $u:ident, derive: $lhs:ident / $rhs:ident) => {
-        $crate::impl_quantity_and_unit!($n, $u);
+    (name: $qty:ident, unit: $u:ident, derive: $lhs:ident / $rhs:ident) => {
+        // quantity + unit
+        $crate::impl_quantity_and_unit!($qty, $u);
         
         // operators
-        $crate::impl_div!($lhs / $rhs = $n);
-        $crate::impl_div!($lhs / $n = $rhs);
-        $crate::impl_mul!($n * $rhs = $lhs);
+        $crate::impl_div!($lhs / $rhs = $qty);
+        $crate::impl_div!($lhs / $qty = $rhs);
+        $crate::impl_mul!($qty * $rhs = $lhs);
     };
 }
 
