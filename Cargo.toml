@@ -8,3 +8,4 @@ description = "unit safe computation in rust"
 repository = "https://github.com/lucalewin/measurement"
 
 [dependencies]
+num = "0.4"
