@@ -1,32 +1,59 @@
 use crate::quantity;
 
 // base units
-quantity!(
+quantity! {
     name: Time,
-    unit: Second
-);
-quantity!(
+    base_unit: Second,
+    units: {
+        Second:      1e+0,
+        Millisecond: 1e-3,
+    }
+}
+quantity! {
     name: Length,
-    unit: Meter
-);
-quantity!(
+    base_unit: Meter,
+    units: {
+        Kilometer:  1e+3,
+        Meter:      1e+0,
+        Centimeter: 1e-2,
+        Millimeter: 1e-3,
+    }
+}
+quantity! {
     name: Mass,
-    unit: Kilogram
-);
+    base_unit: Kilogram,
+    units: {
+        Kilogram:  1e+0,
+        Gram:      1e-3,
+        Milligram: 1e-6,
+    }
+}
 
 // derived
-quantity!(
+quantity! {
     name: Velocity,
-    unit: MeterPerSecond,
-    derive: Length / Time
-);
-quantity!(
+    base_unit: MeterPerSecond,
+    units: {
+        MeterPerSecond: 1,
+        KilometerPerHour: 3.6,
+    },
+    derive: Length / Time,
+}
+quantity! {
     name: Acceleration,
-    unit: MeterPerSquareSecond,
-    derive: Velocity / Time
-);
-quantity!(
+    base_unit: MeterPerSquareSecond,
+    units: {
+        MeterPerSquareSecond: 1,
+    },
+    derive: Velocity / Time,
+}
+quantity! {
     name: Force,
-    unit: Newton,
-    derive: Mass * Acceleration
-);
+    base_unit: Newton,
+    units: {
+        Kilonewton:  1e3,
+        Newton:      1,
+        Millinewton: 1e-3,
+    },
+    derive: Mass * Velocity,
+}
