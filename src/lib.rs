@@ -1,110 +1,112 @@
-#![macro_use]
+#![allow(incomplete_features)]
+#![feature(generic_const_exprs)]
 
 pub mod si;
 
-pub trait Quantity {}
-pub trait Unit {}
+use std::marker::PhantomData;
 
-#[macro_export]
-macro_rules! quantity {
-    // rule for a base quantity
-    (
-        name: $qty:ident,
-        base_unit: $base_unit:ident,
-        units: { $($unit_name:ident: $factor:expr,)+ }
-    ) => {
-        // quantity + unit
-        $crate::impl_quantity_and_unit!($qty, $base_unit);
-    };
-    (
-        name: $qty:ident,
-        base_unit: $base_unit:ident,
-        units: { $($unit_name:ident: $factor:expr,)+ },
-        derive: $lhs:ident $op:tt $rhs:ident $(,)?
-    ) => {
-        $crate::impl_quantity_and_unit!($qty, $base_unit);
-        $crate::impl_ops!($qty, $lhs $op $rhs);
+#[derive(Debug, Copy, Clone)]
+pub struct Dimension<
+    const TIME: isize,
+    const LENGTH: isize,
+    const MASS: isize,
+>;
+
+trait SiDim {}
+impl<
+    const T: isize,
+    const L: isize,
+    const M: isize
+> SiDim for Dimension<T, L, M> {}
+
+#[derive(Debug, Copy, Clone)]
+#[non_exhaustive]
+pub struct Quantity<D> {
+    pub dim: PhantomData<D>,
+    pub value: f64
+}
+
+impl<
+    const T: isize,
+    const L: isize,
+    const M: isize
+> Quantity<Dimension<T, L, M>> {
+    pub fn new(value: f64) -> Self {
+        Self {
+            dim: PhantomData::default(),
+            value
+        }
     }
 }
 
-#[macro_export]
-macro_rules! impl_quantity_and_unit {
-    ($quantity_name:ident, $unit_name:ident) => {
-        $crate::impl_unit!($unit_name, $quantity_name);
-        $crate::impl_quantity!($quantity_name, $unit_name);
-    };
-}
-
-#[macro_export]
-macro_rules! impl_quantity {
-    ($quantity_name:ident, $base_unit_ident:ident) => {
-        pub struct $quantity_name
-        {
-            value: f64,
+impl<
+    const T: isize,
+    const L: isize,
+    const M: isize
+> std::ops::Add for Quantity<Dimension<T, L, M>> {
+    type Output = Quantity<Dimension<T, L, M>>;
+    
+    fn add(self, rhs: Self) -> Self::Output {
+        Self::Output {
+            dim: PhantomData::default(),
+            value: self.value + rhs.value
         }
-        impl $crate::Quantity for $quantity_name {}
-        impl $quantity_name {
-            #[inline(always)]
-            pub fn new(value: f64) -> $quantity_name {
-                $quantity_name { value }
-            }
-            #[inline(always)]
-            pub fn value(&self) -> f64 {
-                self.value
-            }
+    }
+}
+
+impl<
+    const T: isize,
+    const L: isize,
+    const M: isize
+> std::ops::Sub for Quantity<Dimension<T, L, M>> {
+    type Output = Quantity<Dimension<T, L, M>>;
+    
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self::Output {
+            dim: PhantomData::default(),
+            value: self.value - rhs.value
         }
-    };
+    }
 }
 
-#[macro_export]
-macro_rules! impl_unit {
-    ($unit_name:ident, $qty_name:ident) => {
+impl<
+    const T1: isize,
+    const L1: isize,
+    const M1: isize,
+    const T2: isize,
+    const L2: isize,
+    const M2: isize
+> std::ops::Mul<Quantity<Dimension<T2, L2, M2>>> for Quantity<Dimension<T1, L1, M1>>
+where
+    Quantity<Dimension<{T1 + T2}, {L1 + L2}, {M1 + M2}>>: Sized
+{
+    type Output = Quantity<Dimension<{T1 + T2}, {L1 + L2}, {M1 + M2}>>;
 
-        pub struct $unit_name;
-        impl $crate::Unit for $unit_name {}
-    };
-}
-
-#[macro_export]
-macro_rules! impl_ops {
-    ($qty:ident, $lhs:ident * $rhs:ident) => {
-        $crate::impl_mul!($lhs * $rhs = $qty);
-        $crate::impl_div!($qty / $rhs = $lhs);
-        $crate::impl_div!($qty / $lhs = $rhs);
-    };
-    ($qty:ident, $lhs:ident / $rhs:ident) => {
-        $crate::impl_div!($lhs / $rhs = $qty);
-        $crate::impl_div!($lhs / $qty = $rhs);
-        $crate::impl_mul!($qty * $rhs = $lhs);
-    };
-}
-
-#[macro_export]
-macro_rules! impl_mul {
-    ($lhs:ident * $rhs:ident = $out:ident) => {
-        impl std::ops::Mul<$rhs> for $lhs {
-            type Output = $out;
-            
-            fn mul(self, rhs: $rhs) -> Self::Output {
-                $out {
-                    value: self.value * rhs.value
-                }
-            }
+    fn mul(self, rhs: Quantity<Dimension<T2, L2, M2>>) -> Self::Output {
+        Self::Output {
+            dim: PhantomData::default(),
+            value: self.value * rhs.value
         }
-    };
+    }
 }
 
-#[macro_export]
-macro_rules! impl_div {
-    ($lhs:ident / $rhs:ident = $out:ident) => {
-        impl std::ops::Div<$rhs> for $lhs {
-            type Output = $out;
+impl<
+    const T1: isize,
+    const L1: isize,
+    const M1: isize,
+    const T2: isize,
+    const L2: isize,
+    const M2: isize
+> std::ops::Div<Quantity<Dimension<T2, L2, M2>>> for Quantity<Dimension<T1, L1, M1>>
+where
+    Quantity<Dimension<{T1 - T2}, {L1 - L2}, {M1 - M2}>>: Sized
+{
+    type Output = Quantity<Dimension<{T1 - T2}, {L1 - L2}, {M1 - M2}>>;
 
-            fn div(self, rhs: $rhs) -> Self::Output {
-                $out{
-                    value: self.value / rhs.value
-                }
-            }
+    fn div(self, rhs: Quantity<Dimension<T2, L2, M2>>) -> Self::Output {
+        Self::Output {
+            dim: PhantomData::default(),
+            value: self.value / rhs.value
         }
-    };
+    }
 }
