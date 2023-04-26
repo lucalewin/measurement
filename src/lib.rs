@@ -31,9 +31,9 @@ impl<
     const L: isize,
     const M: isize
 > Quantity<Dimension<T, L, M>> {
-    pub fn new(value: f64) -> Self {
+    pub const fn new(value: f64) -> Self {
         Self {
-            dim: PhantomData::default(),
+            dim: PhantomData,
             value
         }
     }
@@ -48,7 +48,7 @@ impl<
     
     fn add(self, rhs: Self) -> Self::Output {
         Self::Output {
-            dim: PhantomData::default(),
+            dim: PhantomData,
             value: self.value + rhs.value
         }
     }
@@ -63,7 +63,7 @@ impl<
     
     fn sub(self, rhs: Self) -> Self::Output {
         Self::Output {
-            dim: PhantomData::default(),
+            dim: PhantomData,
             value: self.value - rhs.value
         }
     }
@@ -84,7 +84,7 @@ where
 
     fn mul(self, rhs: Quantity<Dimension<T2, L2, M2>>) -> Self::Output {
         Self::Output {
-            dim: PhantomData::default(),
+            dim: PhantomData,
             value: self.value * rhs.value
         }
     }
@@ -105,7 +105,7 @@ where
 
     fn div(self, rhs: Quantity<Dimension<T2, L2, M2>>) -> Self::Output {
         Self::Output {
-            dim: PhantomData::default(),
+            dim: PhantomData,
             value: self.value / rhs.value
         }
     }
