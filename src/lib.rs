@@ -10,12 +10,21 @@
 //! 7. Luminous Intensity [cd]
 //! 
 
+// #![no_std]
+
 #![allow(incomplete_features)]
 #![feature(generic_const_exprs)]
 
 pub mod si;
+pub mod test;
+pub mod types;
+pub mod impls;
 
-use std::marker::PhantomData;
+// use std::marker::PhantomData;
+
+// struct PhantomData<T> where T: ?Sized;
+
+use core::marker::PhantomData;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Dimension<
@@ -39,7 +48,7 @@ impl<
     const J: isize
 > SiDim for Dimension<L, M, T, I, TT, N, J> {}
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug,  Clone)]
 #[non_exhaustive]
 pub struct Quantity<D> {
     pub dim: PhantomData<D>,
@@ -71,7 +80,7 @@ impl<
     const TT: isize,
     const N: isize,
     const J: isize
-> std::ops::Add for Quantity<Dimension<L, M, T, I, TT, N, J>> {
+> core::ops::Add for Quantity<Dimension<L, M, T, I, TT, N, J>> {
     type Output = Self;
     
     fn add(self, rhs: Self) -> Self::Output {
@@ -90,7 +99,7 @@ impl<
     const TT: isize,
     const N: isize,
     const J: isize
-> std::ops::Sub for Quantity<Dimension<L, M, T, I, TT, N, J>> {
+> core::ops::Sub for Quantity<Dimension<L, M, T, I, TT, N, J>> {
     type Output = Self;
     
     fn sub(self, rhs: Self) -> Self::Output {
@@ -117,7 +126,7 @@ impl<
     const TT2: isize,
     const N2: isize,
     const J2: isize
-> std::ops::Mul<Quantity<Dimension<L2, M2, T2, I2, TT2, N2, J2>>> for Quantity<Dimension<L1, M1, T1, I1, TT1, N1, J1>>
+> core::ops::Mul<Quantity<Dimension<L2, M2, T2, I2, TT2, N2, J2>>> for Quantity<Dimension<L1, M1, T1, I1, TT1, N1, J1>>
 where
     Quantity<Dimension<{L1 + L2}, {M1 + M2}, {T1 + T2}, {I1 + I2}, {TT1 + TT2}, {N1 + N2}, {J1 + J2}>>: Sized
 {
@@ -147,7 +156,7 @@ impl<
     const TT2: isize,
     const N2: isize,
     const J2: isize
-> std::ops::Div<Quantity<Dimension<L2, M2, T2, I2, TT2, N2, J2>>> for Quantity<Dimension<L1, M1, T1, I1, TT1, N1, J1>>
+> core::ops::Div<Quantity<Dimension<L2, M2, T2, I2, TT2, N2, J2>>> for Quantity<Dimension<L1, M1, T1, I1, TT1, N1, J1>>
 where
     Quantity<Dimension<{L1 - L2}, {M1 - M2}, {T1 - T2}, {I1 - I2}, {TT1 - TT2}, {N1 - N2}, {J1 - J2}>>: Sized
 {

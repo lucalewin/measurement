@@ -6,3 +6,7 @@ authors = ["Luca Lewin <contact@lucalewin.dev>"]
 license = "MIT OR Apache-2.0"
 description = "unit safe computation in rust"
 repository = "https://github.com/lucalewin/measurement"
+
+[dependencies]
+paste = "1.0.12"
+typenum = "1.16"
