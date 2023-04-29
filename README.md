@@ -38,8 +38,6 @@ fn main() {
 
 ## Define new quantities
 
-currently only three dimensions are supported: Time, Length, Mass
-
 ```rust
 use measurement::{Quantity, Dimension};
 
@@ -56,3 +54,10 @@ pub type Acceleration = Quantity<Dimension<1, 0, -2, 0, 0, 0, 0>>;
 pub type Force        = Quantity<Dimension<1, 1, -2, 0, 0, 0, 0>>;
 
 ```
+
+## Limitations
+
+- currently only seven dimensions are supported
+- all quantities use the base unit
+  - you can't define units
+- unstable feature has to be used
